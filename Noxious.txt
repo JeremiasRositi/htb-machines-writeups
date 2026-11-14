@@ -1,0 +1,68 @@
+                                                                          Noxious
+Escenario de Sherlock: El dispositivo IDS nos alertó sobre un posible dispositivo no autorizado en la red interna de Active Directory. El sistema de detección de intrusiones también indicó señales de tráfico LLMNR, lo cual es inusual. Se sospecha que se produjo un ataque de envenenamiento por LLMNR. El tráfico LLMNR se dirigió hacia Forela-WKstn002, que tiene la dirección IP 172.17.79.136. Nuestro experto en Network Forensics le proporciona una captura de paquetes limitada del tiempo circundante. Dado que esto ocurrió en la VLAN de Active Directory, se sugiere que realicemos la búsqueda de amenazas de red teniendo en cuenta el vector de ataque de Active Directory, centrándonos específicamente en el envenenamiento de LLMNR.
+
+
+Tarea 1: 
+El equipo de seguridad sospecha que había un dispositivo no autorizado en la red interna de Forela que ejecutaba una herramienta de respuesta para realizar un ataque de envenenamiento LLMNR. Encuentre la dirección IP maliciosa de la máquina.
+
+Resolución:
+Según el escenario se esta hablando de un LLMNR por lo tanto ya se que es un puerto UDP lo primero que filtre en wireshark es udp.port == "5355"
+viendo asi la única solicitud que responde y consiguiendo la ip "172.17.79.135"
+
+Tarea 2:¿Cuál es el nombre de host de la máquina rebelde?
+
+Resolución: al tener la ip del atacante lo primero que hice fue filtrar por su ip (ip.addr == "172.17.79.135") lo cual nunca llegue a encontrar nada comparado al hostname aparecía el log mas interesante del lab el #9292 y el #9291 vi mucha información de otras tareas en estos dos archivos pero todavía no lo sabia, pero nunca llegue al hostname del atacante.
+
+luego de buscar mucha información de como poder filtrar encontré una opción interesante (ntlmssap.auth.username) pero después de mucho investigar todavía nada pero llegue pero se mostraba nuevamente los logs #9292 #9291 lo cual guarde a futuro ya que tenia información muy valiosa
+
+también use (kerberos.CNameString contains "$") pero sin encontrar nada, ya después de tanta frustración que tenia sin poder encontrar el hostname decidí ver la pista y me encontré que lo primero que estaba haciendo estaba bien pero me falto un argumento es decir que tenia que usar (ip.addr == "172.17.79.135" && DHCP) apareció el único log 
+La razón por la que susa esto es porque el dispositivo usó dhcp para obtener una dirección IP asignada a sí mismo y asignarla a su nombre de host y el nombre fue "kali"
+
+
+Nota: tengo que reconocer que esta tarea fue casi una de las ultimas que hice, lo que se me complico no tiene sentido 
+
+
+Tarea 3:¡¡Ahora necesitamos confirmar si el atacante capturó el hash del usuario y es descifrable!! ¿Cuál es el nombre de usuario cuyo hash fue capturado?
+
+Resolución: aca lo único que se me ocurrió fue filtrar por smb y para ello el filtro aplicado fue smb2 hay varios logs de autencacion valida y uno de todos después de investigar tenia el nombre "john.deacon"
+
+Tarea 4:En el tráfico NTLM podemos ver que las credenciales de la víctima se transmitieron varias veces a la máquina del atacante. ¿Cuándo se capturaron los hashes la primera vez?
+
+Resolución: al ser una autenticación y ya sabiendo el filtro a usar fue lo primero que hice (ntlmssap.auth.username) después de esto el primer log que me apareció fue el primer auth que tuvo, arriba del todo aparecía 2 horas distintas pero leyendo bien el correcto era "2024-06-24 11:18:30"
+
+Tarea 5:¿Cuál fue el error tipográfico cometido por la víctima al navegar al archivo compartido que provocó que se filtraran sus credenciales?
+
+Resolución: al ser error tipográfico y sabiendo la vulnerabilidad que esta haciendo simplemente filtre por "LLMNR" y al observar los traficos hay una consulta "dc01" el nombre original seria "dcc01" 
+ 
+Tarea 6:Para obtener las credenciales reales del usuario víctima, necesitamos unir varios valores de los paquetes de negociación ntlm. ¿Cuál es el valor del desafío del servidor NTLM?
+
+
+Resolución: lo único que necesite fue filtrar nuevamente (ntlmssap.auth.username) acceder al log #9292 y al fondo de todo en blob security hay un dato que se llama 
+NTLM server challenge
+
+Tarea 7:Ahora, haciendo algo similar, encuentre el valor NTProofStr.
+
+Resolución: basciamente lo mismo pero nada mas que estaba en NTLMv2 Response
+
+Tarea 8:Para probar la complejidad de la contraseña, intente recuperarla de la información encontrada en la captura de paquetes. Este es un paso crucial ya que de esta manera podemos determinar si el atacante fue capaz de resolverlo y con qué rapidez.
+
+Resolución: lo que mas se me complico aca fue el poder usar HASHCAT si, no es que no sabia es que directamente mi archlinux virtualizado no me dejaba, descargue todos los paquetes y dependencias de nvidia (sudo pacman -Syu hashcat nvidia-open nvidia-utils opencl-nvidia cuda) me saltaba primero que no tenia espacio asique use (sudo paccache -ruk0) y luego (sudo pacman -Scc)  y después instale los paquetes de nvidia (sudo pacman -Syu hashcat nvidia-open nvidia-utils opencl-nvidia cuda) reinicie y nada me seguía tirando el mismo error 
+
+El error clGetPlatformIDs() CL_PLATFORM_NOT_FOUND_KHR 
+
+al usar una VMware no virtualizo la grafica por lo tanto tuve que descargar pocl para que hashcat funcione usando mi procesador (sudo pacman -S pocl) 
+y ahora si funciona
+
+ahora tuve que agarrar todas las credenciales obtenidas y en un txt agregar todo y guardarlo ejemplo test.txt
+
+Usuario::Dominio:ServerChallenge:NTProofStr:NTLMv2Response 
+
+ya con todo eso simplemente use (Hashcat -a0 -m5600 test.txt usr/share/wordlists/seclists/Passwords/Leaked-Databases/rockyou.txt)
+
+y el output de la contraseña fue "NotMyPassword0K?"
+
+Tarea 9:Solo para obtener más contexto sobre el incidente, ¿cuál es el archivo compartido real al que la víctima estaba tratando de navegar?
+
+Resolución: volvi a buscar el error tipografico con "LLMNR" buscar nuevamente el log en el que aparecía y ver a que lugar intentaba acceder el cual fue sencillo de encontrar y es "\\DC01\DC-Confidential"
+
+tiene sentido que sea error tipografico ya que originalmente seria "\\DCC01\DC-Confidential"
