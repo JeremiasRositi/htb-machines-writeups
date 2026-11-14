@@ -1,0 +1,54 @@
+PCAP Analyst
+
+primero lo principal fue poder ver el archivo pcap brindado por HTB por lo tanto intente leerlo desde consola en un principio asique use:
+
+
+tshark -r pcapanalyst.pcap
+
+al leer absolutamente todo y no entrar en consola decidí abrir wireshark directamente 
+
+sudo wireshark && disown
+
+Tarea 1: ¿cuáles son las direcciones IP del remitente y del receptor?
+
+a estas alturas empecé a filtrar ips mostradas al principio de todo hay una ip que se repetia mucho (192.168.235.137)
+asi que filtre por esta ip con ip.addr 192.168.235.137
+y se repetia una frase en varias "p13" asi que decidí filtar usando frame contains "P13"
+
+siguiendo el flujo TCP se lee una conversación entre dos usuarios 
+
+{remitente 192.168.235.137
+receptor 192.168.235.131}
+
+Tarea 2: P13 subió un archivo al servidor web. ¿Cuál es la dirección IP del servidor?
+
+
+
+al tener la ip de cada uno pensé que podía volver a filtrar por ip.addr "remitente" pero eran muchas solicitudes por lo tanto 
+filtre por alguna solicitud por post usando http.request.metohd == "POST" la primera que apareció de solicitud fue la que contenia un apartado de content-disposition: …. filename="file"
+
+y arriba del todo en ethernet II la ip del servidor que se subio el archivo: 192.168.1.7
+
+por lo tanto tengo la dirección ip y el nombre del archivo que subio el atacante 
+
+Tarea 3: ¿Cómo se llama el archivo que se envió a través de la red?
+
+conseguido junto a la respuesta 2: filename:="file"
+
+Tarea 4: ¿Qué software de servidor web se ejecuta en la máquina de destino?
+
+usando el mismo log en el apartado arriba del todo aparecía el nombre del servicio web en este caso "Apache"
+en cualquier caso también lo comprobé usando http.server y el primer log indicaba el software
+
+Tarea 5:¿En qué directorio se cargó el archivo?
+
+junto al log donde aparecía el nombre "file" mas abajo decía que se cargo en le directorio "uploads"
+
+Tarea 6: ¿Cuánto tiempo tardó el remitente en enviar el archivo cifrado?
+
+usando la tabla de conversaciones le di click derecho al log Follow > TCP Stream barra de filtro (eq 22)
+después abri statics>conversations
+marque la casilla limit to display filter
+y mirando la columna de duration saltaba el numero "0.0073" el cual fue la respuesta de la Tarea 6
+
+y con esto finalizo la maquina! muy buena para practicar capturas pcap y profundizar la herramienta wireshark 
