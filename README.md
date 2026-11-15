@@ -35,8 +35,8 @@ Nombre	SOC	Easy	Ej: captura de red, Wireshark
 > Voy actualizando la tabla a medida que sumo writeups.
 ---
 🛠️ Herramientas que uso
-`Wireshark` · `Event Viewer` · `Sysmon` · `Volatility` · `Autopsy` · `Eric Zimmerman Tools` · `CyberChef` · `VirusTotal` · `Linux` · `Bash` · `ThunderBird`
-(Ajustá esta lista a lo que realmente usás.)
+`Wireshark` · `Event Viewer`  · `Volatility` ·  `CyberChef` · `VirusTotal` · `Linux` · `Bash` · `ThunderBird`
+(A medidad que avanzo agrego mas herramientas)
 ---
 ⚠️ Aviso importante
 Solo publico writeups de Sherlocks retirados, respetando las reglas de Hack The Box.
