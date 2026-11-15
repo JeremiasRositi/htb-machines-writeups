@@ -45,8 +45,12 @@ Todo es con fines educativos.
 ---
 👤 Sobre mí
 Soy Jeremias Rositi, Profesionalizandome en Ciberseguridad. Buenos Aires, Argentina, con foco en Blue Team / SOC Analyst L1. Este repo es parte de mi camino para conseguir mi primera oportunidad en el rubro.
+
 🔗 [Linkedin](linkedin.com/in/jeremias-rositi-079925271/)
+
 🐙 GitHub: JeremiasRositi
+
 🏴 [HTB Profile](https://app.hackthebox.com/users/856984?profile-top-tab=machines&ownership-period=1M&profile-bottom-tab=prolabs)
 ---
+
 ⭐ Si te sirvió algo de acá, dejá una estrella. ¡Y si encontrás un error o tenés una idea mejor, abrí un issue!
