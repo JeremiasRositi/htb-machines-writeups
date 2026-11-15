@@ -1,0 +1,24 @@
+                                                                       Escenario de Sherlock
+Tu dirección de correo electrónico ha sido filtrada y recibes un correo electrónico de Paypal en alemán. Intente analizar el correo electrónico sospechoso.
+
+
+
+Tarea 1:¿Cuál es la ruta de retorno del correo electrónico?
+
+Resolución: usando thunderbird o simplemente desde consola hay que hacerle un cat al archivo de .eml y ver el apartado de ARC-Authentication ahí sale el dominio del mail asignado a la tarea 1 por lo tanto la respuesta es : bounce@rjttznyzjjzydnillquh.designclub.uk.com
+
+Tarea 2:¿Cuál es el nombre de dominio de la URL en este correo?
+
+Resolución: gracias a anteriores desafíos de sherlocks me resulto fácil encontrar el url, simplemente hay que bajar hasta el apartado donde esta todo el mensaje del mail enviado y ver el link a donde te redirige la web, en este caso la respuesta es https://storage.googleapis.com y en HTB la respuesta es sin el https://
+
+Tarea 3:¿Es sospechoso el dominio mencionado en la pregunta anterior?
+
+Resolución: la respuesta es Yes, ya que la url por defecto en Google no seria valida 
+
+Tarea 4:¿Cuál es la dirección IP del remitente que aparece en el encabezado Received-SPF?
+
+Resolución: lo mismo que la primera tarea, después del correo electrónico aparece la ip del remitente, en este caso seria: 134.195.196.43
+
+Tarea 5:¿Es este correo electrónico un correo electrónico de phishing?
+
+Resolución: la respuesta es un Yes
