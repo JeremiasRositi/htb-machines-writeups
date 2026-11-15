@@ -1,0 +1,72 @@
+                                                                    Escenario de Sherlock
+Un equipo de contabilidad recibe una solicitud de pago urgente de un proveedor conocido. El correo electrónico parece legítimo pero contiene un enlace sospechoso y un archivo adjunto .zip que oculta malware. Su tarea es analizar los encabezados de correo electrónico y descubrir el esquema del atacante.
+
+
+Tarea 1:¿Cuál es la dirección IP de origen del remitente?
+
+Resolución: esta tarea fue bastante fácil ya que apenas hacemos el cat al archivo .eml arriba del todo aparece una opción  
+X-Originating-ip [IP del remitente]
+
+Tarea 2:¿Qué servidor de correo transmitió este correo electrónico antes de llegar a la víctima?
+
+Resolución: para esta tarea hay que empezar a ver las opciones de recived hay varias pero justo arriba del sender ip tenemos la opción de recived el mail y la ip del servidor transmitido 
+
+Tarea 3:¿Cuál es la dirección de correo electrónico del remitente?
+
+Resolución: lo mismo que la segunda tarea lo único que mirando mas abajo en la ultima opción de recived vemos el correo electrónico en vez del servidor 
+
+Tarea 4:¿Cuál es la dirección de correo electrónico de “Respuesta a” especificada en el correo electrónico?
+
+Resolución: leyendo el contenido del correo enviado en el body casi al final vemos que dice que se contacte al soporte si necesita ayuda y el correo brindado mailto: (respuesta)
+
+Tarea 5:¿Cuál es el resultado del SPF (Sender Policy Framework) para este correo electrónico?
+
+Resolución: esta opción yo no la conocía por lo tanto me ayude de Google para investigar que significaba las siglas spf por lo que mas me llamo la atención fue esta respuesta :
+
+Evita el phishing y la suplantación: Cuando recibes un correo, el servidor del destinatario revisa el registro SPF del dominio del remitente para comprobar si la IP que envió el mensaje está autorizada. Si no coincide, el correo puede ser rechazado o marcado directamente como spam
+
+ya al saber lo que significaba volvi a mirar el correo y justo 2 líneas por debajo de la ip del origen encontré la opción [received-SPF]: Pass sabiendo asi la respuesta yh lo que hay siguiente es que el dominio que tenían estos atacantes estaba permitida para enviarlo y que no lo tome como un spam
+
+Tarea 6:¿Cuál es el dominio utilizado en la URL de phishing dentro del correo electrónico?
+
+Resolución: para saber esta respuesta me resulto complicada pero por el simple hecho de que tuve un error tonto y quería poner la url con el https:// una vez que lo razone y pensé bien sin apurarme simplemente borre eso y saque la respuesta rápidamente, como en otros casos ya vistos que redacte, la respuesta esta en el body del correo enviado href="URL"
+
+Tarea 7:¿Cuál es el nombre falso de la empresa utilizado en el correo electrónico?
+
+Resolución: respuesta sencilla simplemente mirando arriba del todo hay una linea que dice X-Organization: (nombre de la empresa)
+
+Tarea 8:¿Cuál es el nombre del archivo adjunto incluido en el correo electrónico?
+
+Resolución: abajo del todo junto con el content-type vemos el name="archivo"
+
+Tarea 9:¿Cuál es el hash SHA-256 del archivo adjunto?
+
+Resolución: no voy a mentir aca esta respuesta fue la ultima que saque de todas y me resulto bastante complicado por que yo estaba decodificando todo por separado, primero el nombre y después el hash mostrado en base64, primero hice el base64 desde consola use 
+
+echo -n 'hash' | base64 -d 
+
+al hacer eso primero que me salto fue la respuesta numero 10 ya que es el nombre del archivo, lo que mi mentalidad fue codificar el nombre del archivo en sha256
+
+asi que hice lo siguiente
+
+echo -n 'filename.zip' | sha256sum 
+
+pero eso nunca llego a ser la respuesta, por lo tanto dije bueno me esta pidiendo el sha256 del archivo dentro del zip asique intente lo siguiente
+
+echo -n 'respuesta n10' | sha256sum
+
+pero tampoco llegue a la resolución por lo que pensé que si me lo esta dando en base64 podría decodificarlo completo y que me lo codifique en sha256 asi que intente lo siguiente
+
+echo -n 'hash del correo' | base64 -d | sha256sum
+
+y ahí llegue a la respuesta correcta que me pedia HTB  
+
+tengo que aclarar que cuando lo estaba haciendo quería pedir la pista para poder resolverlo pero htb no me daba ninguna pista en ningún momento de cualquier tarea que estaba realizando
+
+Tarea 10:¿Cuál es el nombre del archivo malicioso contenido en el archivo adjunto ZIP?
+
+Resolución: echo -n 'hash' | base64 -d ----- lo primero que hice en la pregunta n9 fue esta respuesta
+
+Tarea 11:¿Qué técnicas MITRE ATT&CK están asociadas con este ataque?
+
+Resolución: teniendo conocimientos de mi diplomado en la UTN - Regional Delta gracias al modulo 2 supe instantáneamente que se trataba de la técnica T1566.001 (Phisihing de archivo malicioso)
